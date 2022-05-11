@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
     age: Number,
     weight: Number,
   },
+  disease: [mongoose.Types.ObjectId],
 });
 
 module.exports = mongoose.model('user', userSchema);
