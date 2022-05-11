@@ -1,12 +1,28 @@
-require('dotenv').config();
 const express = require('express');
+const morgan = require('morgan');
+
+const userRoutes = require('./Routes/userRoute');
+// const authRoutes = require('./Routes/authRoute');
 
 const app = express();
-const port = process.env.PORT;
-const routes = require('./Routes/index');
 
-app.use('/api/v1', routes);
+// dev middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-app.listen(port, () => {
-  console.log(`listen on port: ${port}`);
+app.use((req, res, next) => {
+  console.log('Hello from the middleware 👋');
+  next();
 });
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
+// route
+app.use('/api/v1/users', userRoutes);
+// app.use('/api/v1/users', authRoutes);
+
+module.exports = app;
