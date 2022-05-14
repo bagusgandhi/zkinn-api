@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   details: {
     nik: String,
     full_name: String,
-    date_of_birth: Date,
+    date_of_birth: String,
     gender: String,
     address: String,
     religion: String,
