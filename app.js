@@ -4,9 +4,11 @@ const morgan = require('morgan');
 const AppError = require('./Helpers/appError');
 const globalErrorHandler = require('./Controllers/errorController');
 const userRoutes = require('./Routes/userRoute');
-// const authRoutes = require('./Routes/authRoute');
+const authRoutes = require('./Routes/authRoute');
 
 const app = express();
+
+app.use(express.json());
 
 // dev middleware
 if (process.env.NODE_ENV === 'development') {
@@ -25,7 +27,7 @@ app.use((req, res, next) => {
 
 // route
 app.use('/api/v1/users', userRoutes);
-// app.use('/api/v1/users', authRoutes);
+app.use('/api/v1/users', authRoutes);
 
 // route error handler
 app.all('*', (req, res, next) => {
