@@ -6,4 +6,4 @@ const treatmentSchema = new mongoose.Schema({
   doctors: mongoose.Types.ObjectId,
 });
 
-module.exports = mongoose.model('user', treatmentSchema);
+module.exports = mongoose.model('treatment', treatmentSchema);
