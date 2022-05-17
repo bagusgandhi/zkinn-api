@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const diseaseSchema = new mongoose.Schema(
   {
     disease_name: String,
-    disease_details: Object,
+    confidence: mongoose.Decimal128,
     disease_img: String,
     doctor: { type: mongoose.Schema.Types.ObjectId, ref: 'doctor' },
   },
