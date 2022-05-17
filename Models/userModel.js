@@ -32,8 +32,8 @@ const userSchema = new mongoose.Schema({
       },
       messgae: 'password confirm not match!!',
     },
-
   },
+  passwordChangedAt: Date,
   details: {
     nik: String,
     full_name: String,
@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
     age: Number,
     weight: Number,
   },
-  disease: [mongoose.Types.ObjectId],
+  disease: [{ type: mongoose.Schema.Types.ObjectId, ref: 'disease' }],
 });
 
 userSchema.pre('save', async function (next) {
@@ -63,8 +63,29 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10,
+    );
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  // False means NOT changed
+  return false;
 };
 
 module.exports = mongoose.model('user', userSchema);

@@ -1,4 +1,6 @@
+/* eslint-disable prefer-destructuring */
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const User = require('../Models/userModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
@@ -56,4 +58,32 @@ exports.login = catchAsync(async (req, res, next) => {
     message: 'Login successfull',
     token,
   });
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  // check token
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(new AppError('You are not login, please login first', 401));
+  }
+  // validate token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // check user
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
+    return next(new AppError('The user to this token no loger exist', 401));
+  }
+  // check if password changed after token jwt
+  if (freshUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password! Please log in again.', 401),
+    );
+  }
+  req.user = freshUser;
+  next();
 });
