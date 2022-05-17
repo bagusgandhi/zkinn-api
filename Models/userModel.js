@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
     age: Number,
     weight: Number,
   },
-  disease: [mongoose.Types.ObjectId],
+  disease: [{ type: mongoose.Schema.Types.ObjectId, ref: 'disease' }],
 });
 
 userSchema.pre('save', async function (next) {
