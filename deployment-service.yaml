@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skinnconnect-deployment
+  labels:
+    app: skinconnect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skinconnect
+  template:
+    metadata:
+      labels:
+        app: skinconnect
+    spec:
+      containers:
+      - name: skinconnect
+        image: bagusgandhi/skinconnect:latest
+        ports:
+        - containerPort: 3000
+        env:
+          - name: NODE_ENV
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: node-env
+          - name: PORT
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: port
+          - name: MONGO_URI
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: mongo-uri
+          - name: MONGO_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: mongo-password
+          - name: JWT_SECRET
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: jwt-secret
+          - name: JWT_EXPIRES_IN
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: jwt-expires-in
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: skinconnect-service
+spec:
+  selector:
+    app: skinconnect
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 3000
+    nodePort: 31110
+
