@@ -5,6 +5,7 @@ const AppError = require('./Helpers/appError');
 const globalErrorHandler = require('./Controllers/errorController');
 const userRoutes = require('./Routes/userRoute');
 const authRoutes = require('./Routes/authRoute');
+const diseaseRoutes = require('./Routes/diseaseRoute');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 // route
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/users', authRoutes);
+app.use('/api/v1/users', diseaseRoutes);
 
 // route error handler
 app.all('*', (req, res, next) => {
