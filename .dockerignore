@@ -5,3 +5,4 @@ node_modules
 .gitignore
 request.rest
 README.md
+deployment-service.yaml
