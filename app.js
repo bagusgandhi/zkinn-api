@@ -28,7 +28,7 @@ app.use('/api/v1/users', diseaseRoutes);
 
 // route error handler
 app.all('*', (req, res, next) => {
-  next(new AppError(`can't find ${req.originalUrl} on this server!`));
+  next(new AppError(`can't find the ${req.originalUrl} on this server!`));
 });
 
 app.use(globalErrorHandler);
