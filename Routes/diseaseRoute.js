@@ -10,6 +10,6 @@ router
 router
   .route('/:id/diseases/:disease_id')
   .get(authController.protect, diseaseController.getDisease)
-  .delete(diseaseController.deleteDisease);
+  .delete(authController.protect, diseaseController.deleteDisease);
 
 module.exports = router;
