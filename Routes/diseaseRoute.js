@@ -1,15 +1,16 @@
 const express = require('express');
 const diseaseController = require('../Controllers/diseaseController');
+const authController = require('../Controllers/authController');
 
 const router = express.Router();
 
 router
   .route('/:id/diseases')
-  .post(diseaseController.createDisease);
+  .post(authController.protect, diseaseController.createDisease);
 
 router
   .route('/:id/diseases/:disease_id')
-  .get(diseaseController.getDisease)
-  .delete(diseaseController.deleteDisease);
+  .get(authController.protect, diseaseController.getDisease)
+  .delete(authController.protect, diseaseController.deleteDisease);
 
 module.exports = router;
