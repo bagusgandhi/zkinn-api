@@ -80,7 +80,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('The user to this token no loger exist', 401));
   }
   // check if password changed after token jwt
-  if (freshUser.changedPasswordAfter(decoded.iat)) {
+  if (freshUser.changePasswordAfter(decoded.iat)) {
     return next(new AppError('User recently has changed the password! Please login again', 401));
   }
   req.user = freshUser;
