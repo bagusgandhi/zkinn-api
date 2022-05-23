@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function (next) {
   // for modified password
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
 
   // hashing the password
@@ -69,9 +69,13 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
 
 userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
-    const changedTimestamp = this.passwordChangedAt.getTime();
-    console.log(changedTimestamp, JWTTimestamp);
-    console.log('123okeoke');
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10,
+    );
+    // console.log(changedTimestamp, JWTTimestamp);
+    // console.log('123okeoke');
+    return JWTTimestamp < changedTimestamp;
   }
   return false;
 };
