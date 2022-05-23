@@ -15,6 +15,7 @@ exports.register = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
     details: {
       gender: req.body.details.gender,
       age: req.body.details.age,
@@ -79,10 +80,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('The user to this token no loger exist', 401));
   }
   // check if password changed after token jwt
-  if (freshUser.changedPasswordAfter(decoded.iat)) {
-    return next(
-      new AppError('User recently changed password! Please log in again.', 401),
-    );
+  if (freshUser.changePasswordAfter(decoded.iat)) {
+    return next(new AppError('User recently has changed the password! Please login again', 401));
   }
   req.user = freshUser;
   next();
