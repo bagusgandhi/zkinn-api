@@ -86,3 +86,21 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = freshUser;
   next();
 });
+
+exports.allow = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return next(
+      new AppError('You dont have permission', 403),
+    );
+  }
+
+  next();
+};
+
+exports.forgotPassword = (req, res, next) => {
+
+};
+
+exports.resetPassword = (req, res, next) => {
+  
+};

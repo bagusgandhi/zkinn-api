@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
     weight: Number,
   },
   disease: [{ type: mongoose.Schema.Types.ObjectId, ref: 'disease' }],
+  schedule: [{ type: mongoose.Schema.Types.ObjectId, ref: 'schedule' }],
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -73,8 +79,7 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
       this.passwordChangedAt.getTime() / 1000,
       10,
     );
-    // console.log(changedTimestamp, JWTTimestamp);
-    // console.log('123okeoke');
+
     return JWTTimestamp < changedTimestamp;
   }
   return false;
