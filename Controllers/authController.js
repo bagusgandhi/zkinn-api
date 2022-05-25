@@ -86,3 +86,30 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = freshUser;
   next();
 });
+
+exports.allow = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return next(
+      new AppError('You dont have permission', 403),
+    );
+  }
+
+  next();
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  const user = User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(
+      new AppError('There is no User with this email', 404),
+    );
+  }
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save();
+};
+
+exports.resetPassword = (req, res, next) => {
+
+};
