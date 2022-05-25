@@ -97,10 +97,19 @@ exports.allow = (...roles) => (req, res, next) => {
   next();
 };
 
-exports.forgotPassword = (req, res, next) => {
+exports.forgotPassword = async (req, res, next) => {
+  const user = User.findOne({ email: req.body.email });
 
+  if (!user) {
+    return next(
+      new AppError('There is no User with this email', 404),
+    );
+  }
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save();
 };
 
 exports.resetPassword = (req, res, next) => {
-  
+
 };
