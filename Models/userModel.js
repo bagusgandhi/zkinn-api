@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
       messgae: 'password confirm not match!!',
     },
   },
-  passwordChangedAt: Number,
+  passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Number,
   details: {
