@@ -34,9 +34,9 @@ const userSchema = new mongoose.Schema({
       messgae: 'password confirm not match!!',
     },
   },
-  passwordChangedAt: Date,
+  passwordChangedAt: Number,
   passwordResetToken: String,
-  passwordResetExpires: Date,
+  passwordResetExpires: Number,
   details: {
     nik: String,
     full_name: String,
@@ -104,7 +104,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest('hex');
 
-  this.passwordResetExpires = Date.now() + 10 + 60 + 1000;
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };
