@@ -13,6 +13,8 @@ router
 
 router.post('/forgotPassword', authController.forgotPassword);
 
-router.post('/resetPassword', authController.resetPassword);
+router.patch('/resetPassword/:token', authController.resetPassword);
+
+router.patch('/updatePassword/:id', authController.protect, authController.updatePassword);
 
 module.exports = router;
