@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const User = require('../Models/userModel');
+const Doctor = require('../Models/doctorModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
 const sendEmail = require('../Helpers/email');
@@ -12,7 +12,7 @@ const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, {
 });
 
 exports.register = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
+  const newDoctor = await Doctor.create({
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
@@ -26,7 +26,7 @@ exports.register = catchAsync(async (req, res, next) => {
   });
 
   // create token
-  const token = signToken(newUser._id);
+  const token = signToken(newDoctor._id);
 
   res.status(201).json({
     status: 'success',
@@ -34,7 +34,7 @@ exports.register = catchAsync(async (req, res, next) => {
     message: 'Account Created successfull',
     token,
     data: {
-      user: newUser,
+      doctor: newDoctor,
     },
   });
 });
@@ -44,22 +44,24 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // check if exist
   if (!email || !password) {
-    return next(new AppError('please provide an email and password', 400));
+    return next(
+      new AppError('please provide an email and password', 400),
+    );
   }
 
   // check if correct
-  const user = await User.findOne({ email }).select('+password');
-  if (!user || !(await user.correctPassword(password, user.password))) {
+  const doctor = await Doctor.findOne({ email }).select('+password');
+  if (!doctor || !(await doctor.correctPassword(password, doctor.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
 
   // if ok
-  const token = signToken(user._id);
+  const token = signToken(doctor._id);
   res.status(200).json({
     status: 'success',
     requestAt: Date.now(),
     message: 'Login successfull',
-    user_id: user._id,
+    doctor_id: doctor._id,
     token,
   });
 });
@@ -72,26 +74,32 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(new AppError('You are not login, please login first', 401));
+    return next(
+      new AppError('You are not login, please login first', 401),
+    );
   }
   // validate token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  // check user
-  const freshUser = await User.findById(decoded.id);
-  if (!freshUser) {
-    return next(new AppError('The user to this token no loger exist', 401));
+  // check doctor
+  const currentAccount = await Doctor.findById(decoded.id);
+  if (!currentAccount) {
+    return next(
+      new AppError('The doctor account to this token no longer exist', 401),
+    );
   }
   // check if password changed after token jwt
-  if (freshUser.changePasswordAfter(decoded.iat)) {
-    return next(new AppError('User recently has changed the password! Please login again', 401));
+  if (currentAccount.changePasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('Doctor account recently has changed the password! Please login again', 401),
+    );
   }
-  req.user = freshUser;
+  req.doctor = currentAccount;
   next();
 });
 
 exports.allow = (...roles) => (req, res, next) => {
-  if (!roles.includes(req.user.role)) {
+  if (!roles.includes(req.doctor.role)) {
     return next(
       new AppError('You dont have permission', 403),
     );
@@ -101,24 +109,24 @@ exports.allow = (...roles) => (req, res, next) => {
 };
 
 exports.forgotPassword = async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const doctor = await Doctor.findOne({ email: req.body.email });
 
-  if (!user) {
+  if (!doctor) {
     return next(
-      new AppError('There is no User with this email', 404),
+      new AppError('There is no Doctor account with this email', 404),
     );
   }
 
-  const resetToken = user.createPasswordResetToken();
-  await user.save({ validateBeforeSave: false });
+  const resetToken = doctor.createPasswordResetToken();
+  await doctor.save({ validateBeforeSave: false });
 
-  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/doctors/resetPassword/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}. \nif you didn't forget your password, please ignore this email anda just login `;
 
   try {
     await sendEmail({
-      email: user.email,
+      email: doctor.email,
       subject: 'Your password reset token (valid for 10 minute)',
       message,
     });
@@ -128,9 +136,9 @@ exports.forgotPassword = async (req, res, next) => {
       message: 'Token sent to your email',
     });
   } catch (err) {
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save({ validateBeforeSave: false });
+    doctor.passwordResetToken = undefined;
+    doctor.passwordResetExpires = undefined;
+    await doctor.save({ validateBeforeSave: false });
 
     return next(
       new AppError('There was an error sending email. Try again later!', 500),
@@ -144,53 +152,53 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     .update(req.params.token)
     .digest('hex');
 
-  const user = await User.findOne({
+  const doctor = await Doctor.findOne({
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
   });
 
-  if (!user) {
+  if (!doctor) {
     return next(
       new AppError('Token was invalid beacause expired', 400),
     );
   }
 
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
-  await user.save();
+  doctor.password = req.body.password;
+  doctor.passwordConfirm = req.body.passwordConfirm;
+  doctor.passwordResetToken = undefined;
+  doctor.passwordResetExpires = undefined;
+  await doctor.save();
 
-  const token = signToken(user._id);
+  const token = signToken(doctor._id);
 
   res.status(200).json({
     status: 'success',
     requestAt: Date.now(),
     message: 'Login successfull',
-    user_id: user._id,
+    doctor_id: doctor._id,
     token,
   });
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id).select('+password');
+  const doctor = await Doctor.findById(req.params.id).select('+password');
 
-  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+  if (!(await doctor.correctPassword(req.body.passwordCurrent, doctor.password))) {
     return next(
       new AppError('Your current password is wrong.', 401),
     );
   }
 
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  await user.save();
+  doctor.password = req.body.password;
+  doctor.passwordConfirm = req.body.passwordConfirm;
+  await doctor.save();
 
-  const token = signToken(user._id);
+  const token = signToken(doctor._id);
   res.status(200).json({
     status: 'success',
     requestAt: Date.now(),
     message: 'Update Password successfull',
-    user_id: user._id,
+    doctor_id: doctor._id,
     token,
   });
 });

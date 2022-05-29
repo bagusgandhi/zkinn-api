@@ -5,6 +5,8 @@ const AppError = require('./Helpers/appError');
 const globalErrorHandler = require('./Controllers/errorController');
 const userRoutes = require('./Routes/userRoute');
 const authRoutes = require('./Routes/authRoute');
+const authDoctorRoutes = require('./Routes/authDoctorRoute');
+const diseaseRoutes = require('./Routes/diseaseRoute');
 
 const app = express();
 
@@ -16,11 +18,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use((req, res, next) => {
-  console.log('Hello from the middleware 👋');
-  next();
-});
-
-app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
@@ -28,6 +25,8 @@ app.use((req, res, next) => {
 // route
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/users', authRoutes);
+app.use('/api/v1/users', diseaseRoutes);
+app.use('/api/v1/doctors', authDoctorRoutes);
 
 // route error handler
 app.all('*', (req, res, next) => {
