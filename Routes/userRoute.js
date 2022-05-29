@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('../Controllers/userController');
 const authController = require('../Controllers/authController');
+const scheduleController = require('../Controllers/scheduleController');
 
 const router = express.Router();
 
@@ -16,5 +17,7 @@ router
   .delete(authController.protect, authController.allow('admin'), userController.deleteUser);
 
 router.patch('/update/:id', authController.protect, userController.update);
+
+router.get('/:id/schedule', authController.protect, scheduleController.getSchedule);
 
 module.exports = router;

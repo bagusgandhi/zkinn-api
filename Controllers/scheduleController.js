@@ -31,3 +31,21 @@ exports.createSchedule = catchAsync(async (req, res, next) => {
     data: schedule,
   });
 });
+
+exports.getSchedule = catchAsync(async (req, res, next) => {
+  const schedule = await Schedule.find({
+    users: req.params.id,
+  });
+
+  if (!schedule) {
+    return next(
+      new AppError('User does not have a schedule', 404),
+    );
+  }
+
+  res.status(200).json({
+    status: 'success',
+    requaestAt: Date.now(),
+    schedule,
+  });
+});
