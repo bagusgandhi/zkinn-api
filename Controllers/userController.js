@@ -2,6 +2,16 @@ const User = require('../Models/userModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
 
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) {
+      newObj[el] = obj[el];
+    }
+  });
+  return newObj;
+};
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
   res.status(200).json({
@@ -46,6 +56,28 @@ exports.createUser = catchAsync(async (req, res, next) => {
       _id,
       username,
       email,
+    },
+  });
+});
+
+exports.update = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new AppError('This route is not for password updates, please use /updatePassword', 400),
+    );
+  }
+
+  const filterReqBody = filterObj(req.body, 'details', 'email');
+
+  const updateUser = await User.findByIdAndUpdate(req.params.id, filterReqBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updateUser,
     },
   });
 });

@@ -12,7 +12,9 @@ router
 router
   .route('/:id')
   .get(authController.protect, userController.getUser)
-  .patch(authController.protect, userController.updateUser)
+  .patch(authController.protect, authController.allow('admin'), userController.updateUser)
   .delete(authController.protect, authController.allow('admin'), userController.deleteUser);
+
+router.patch('/update/:id', authController.protect, userController.update);
 
 module.exports = router;

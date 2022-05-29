@@ -21,14 +21,20 @@ exports.createDisease = catchAsync(async (req, res, next) => {
     status: 'success',
     requestAt: Date.now(),
     message: 'Disease Added Successfully',
-    data: [
-      disease,
-    ],
+    data: disease,
   });
 });
 
 exports.getAllDisease = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  const data = await user.disease;
+  const allDisease = await Disease.find({ _id: { $in: data } });
 
+  res.status(200).json({
+    status: 'success',
+    requestAt: Date.now(),
+    data: allDisease,
+  });
 });
 
 exports.getDisease = catchAsync(async (req, res, next) => {
@@ -36,7 +42,9 @@ exports.getDisease = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.id);
 
   if (!disease) {
-    return next(new AppError('No disease or user found with that ID', 404));
+    return next(
+      new AppError('No disease or user found with that ID', 404),
+    );
   }
 
   const { _id, username } = user;
@@ -57,7 +65,9 @@ exports.deleteDisease = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.id);
 
   if (!disease && !user) {
-    return next(new AppError('No disease or user found with that ID', 404));
+    return next(
+      new AppError('No disease or user found with that ID', 404),
+    );
   }
 
   await User.updateOne(
