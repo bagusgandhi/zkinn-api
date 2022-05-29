@@ -3,7 +3,7 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const userSchema = new mongoose.Schema({
+const doctorSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, 'please fill the username'],
@@ -49,16 +49,16 @@ const userSchema = new mongoose.Schema({
     age: Number,
     weight: Number,
   },
-  disease: [{ type: mongoose.Schema.Types.ObjectId, ref: 'disease' }],
-  schedule: [{ type: mongoose.Schema.Types.ObjectId, ref: 'schedule' }],
   role: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
+    enum: ['doctor', 'admin'],
+    default: 'doctor',
   },
+  certified: [],
+  patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'patient' }],
 });
 
-userSchema.pre('save', async function (next) {
+doctorSchema.pre('save', async function (next) {
   // for modified password
   if (!this.isModified('password')) {
     return next();
@@ -72,18 +72,18 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('save', function (next) {
+doctorSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
-userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+doctorSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
+doctorSchema.methods.changePasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
@@ -95,7 +95,7 @@ userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-userSchema.methods.createPasswordResetToken = function () {
+doctorSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto
@@ -108,4 +108,4 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('doctor', doctorSchema);

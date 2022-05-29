@@ -2,6 +2,16 @@ const User = require('../Models/userModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
 
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) {
+      newObj[el] = obj[el];
+    }
+  });
+  return newObj;
+};
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
   res.status(200).json({
@@ -50,6 +60,28 @@ exports.createUser = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.update = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new AppError('This route is not for password updates, please use /updatePassword', 400),
+    );
+  }
+
+  const filterReqBody = filterObj(req.body, 'details', 'email');
+
+  const updateUser = await User.findByIdAndUpdate(req.params.id, filterReqBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updateUser,
+    },
+  });
+});
+
 exports.updateUser = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -60,7 +92,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   } = user;
 
   if (!user) {
-    return next(new AppError('No tour found with that ID', 404));
+    return next(new AppError('No user found with that ID', 404));
   }
 
   res.status(200).json({
