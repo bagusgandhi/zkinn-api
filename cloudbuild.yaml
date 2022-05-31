@@ -1,0 +1,10 @@
+steps:
+    # build image
+    - name: 'gcr.io/cloud-builders/docker'
+      args: [ 'build', '-t', 'gcr.io/${_PROJECT_ID}/skinconnect', '.' ]
+    # push image to gcr
+    - name: 'gcr.io/cloud-builders/docker'
+      args: [ 'push', 'gcr.io/${_PROJECT_ID}/skinconnect']
+    # deploy to cloud run
+    - name: 'gcr.io/cloud-builders/gcloud'
+      args: ['run', 'deploy', 'skinconnect', '--image', 'gcr.io/${_PROJECT_ID}/skinconnect', '--region', 'asia-southeast1', '--platform', 'managed', '--allow-unauthenticated']
