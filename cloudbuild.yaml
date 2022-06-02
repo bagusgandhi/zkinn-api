@@ -7,4 +7,31 @@ steps:
       args: [ 'push', 'gcr.io/${_PROJECT_ID}/skinconnect']
     # deploy to cloud run
     - name: 'gcr.io/cloud-builders/gcloud'
-      args: ['run', 'deploy', 'skinconnect', '--image', 'gcr.io/${_PROJECT_ID}/skinconnect', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
+      args: ['run', 
+      'deploy', 
+      'skinconnect', 
+      '--image', 
+      'gcr.io/${_PROJECT_ID}/skinconnect', 
+      '--set-env-vars', 
+      'MONGO_URI=${_MONGO_URI}', 
+      '--set-env-vars', 
+      'MONGO_PASSWORD=${_MONGO_PASSWORD}', 
+      '--set-env-vars', 
+      'JWT_SECRET=${_JWT_SECRET}', 
+      '--set-env-vars', 
+      'JWT_EXPIRES_IN=${_JWT_EXPIRES_IN}', 
+      '--set-env-vars', 
+      'EMAIL_USERNAME=${_EMAIL_USERNAME}', 
+      '--set-env-vars', 
+      'EMAIL_PASSWORD=${_EMAIL_PASSWORD}', 
+      '--set-env-vars', 
+      'EMAIL_HOST=${_EMAIL_HOST}', 
+      '--set-env-vars', 
+      'EMAIL_PORT=${_EMAIL_PORT}', 
+      '--set-env-vars', 
+      'NODE_ENV=${_NODE_ENV}', 
+      '--region', 
+      'us-central1',
+      '--platform', 
+      'managed', 
+      '--allow-unauthenticated']
