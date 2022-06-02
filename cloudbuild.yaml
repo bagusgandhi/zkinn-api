@@ -10,4 +10,4 @@ steps:
       args: [ 'push', 'gcr.io/${_PROJECT_ID}/skinconnect']
     # deploy to cloud run
     - name: 'gcr.io/cloud-builders/gcloud'
-      args: ['run', 'deploy', 'skinconnect', '--image', 'gcr.io/${_PROJECT_ID}/skinconnect', '--region', 'asia-southeast1', '--platform', 'managed', '--allow-unauthenticated']
+      args: ['run', 'deploy', 'skinconnect', '--image', 'gcr.io/${_PROJECT_ID}/skinconnect', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
