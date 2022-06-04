@@ -9,6 +9,8 @@ router
   .get(authController.protect, authController.allow('admin'), userController.getAllUsers)
   .post(authController.protect, authController.allow('admin'), userController.createUser);
 
+router.get('/profile', authController.protect, userController.profile);
+
 router
   .route('/:id')
   .get(authController.protect, userController.getUser)
