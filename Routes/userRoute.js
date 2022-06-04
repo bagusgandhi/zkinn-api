@@ -17,4 +17,6 @@ router
 
 router.patch('/update/:id', authController.protect, userController.update);
 
+router.get('/:id/findDoctor', authController.protect, userController.findDoctor);
+
 module.exports = router;
