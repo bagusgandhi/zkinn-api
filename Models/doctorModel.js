@@ -40,6 +40,7 @@ const doctorSchema = new mongoose.Schema({
   details: {
     nik: String,
     full_name: String,
+    specialist: String,
     date_of_birth: String,
     gender: String,
     address: String,
