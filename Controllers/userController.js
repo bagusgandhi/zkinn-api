@@ -1,6 +1,7 @@
 const User = require('../Models/userModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
+const Doctor = require('../Models/doctorModel');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -112,5 +113,26 @@ exports.deleteUser = catchAsync(async (req, res) => {
     status: 'success',
     requesAt: Date.now(),
     message: 'Delete user successfull',
+  });
+});
+
+exports.findDoctor = catchAsync(async (req, res) => {
+  const doctor = await Doctor.aggregate([
+    {
+      $sample: {
+        size: 1,
+      },
+    },
+  ]);
+
+  const data = await doctor.map((e) => ({
+    doctor_id: e._id,
+    details: e.details,
+  }));
+
+  res.status(200).json({
+    status: 'success',
+    requaestAt: Date.now(),
+    data,
   });
 });

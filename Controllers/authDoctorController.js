@@ -19,7 +19,9 @@ exports.register = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
     details: {
+      full_name: req.body.details.full_name,
       gender: req.body.details.gender,
+      address: req.body.details.address,
       age: req.body.details.age,
       weight: req.body.details.weight,
     },
