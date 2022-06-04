@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const User = require('../Models/userModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
@@ -112,5 +114,23 @@ exports.deleteUser = catchAsync(async (req, res) => {
     status: 'success',
     requesAt: Date.now(),
     message: 'Delete user successfull',
+  });
+});
+
+exports.profile = catchAsync(async (req, res, next) => {
+  const token = await req.headers.authorization.split(' ')[1];
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.id);
+
+  if (!user) {
+    return next(
+      new AppError('No tour found with that ID', 404),
+    );
+  }
+
+  res.status(200).json({
+    status: 'success',
+    requaestAt: Date.now(),
+    user,
   });
 });
