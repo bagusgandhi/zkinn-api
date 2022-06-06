@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('../Controllers/userController');
 const authController = require('../Controllers/authController');
+const scheduleController = require('../Controllers/scheduleController');
 
 const router = express.Router();
 
@@ -20,5 +21,11 @@ router
 router.patch('/update/:id', authController.protect, userController.update);
 
 router.get('/:id/findDoctor', authController.protect, userController.findDoctor);
+
+router.get('/:id/schedule', authController.protect, scheduleController.getSchedule);
+
+router.get('/:id/schedule/:schedule_id', authController.protect, scheduleController.getScheduleById);
+
+router.patch('/:id/schedule/:schedule_id/items/:items_id', authController.protect, scheduleController.doneTask);
 
 module.exports = router;

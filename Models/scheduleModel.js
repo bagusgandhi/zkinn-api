@@ -7,6 +7,10 @@ const scheduleSchema = new mongoose.Schema(
         title: String,
         content: String,
         time: String,
+        done: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     users: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
