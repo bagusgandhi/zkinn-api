@@ -56,7 +56,7 @@ const doctorSchema = new mongoose.Schema({
     default: 'doctor',
   },
   certified: [],
-  patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'patient' }],
+  patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
 });
 
 doctorSchema.pre('save', async function (next) {
