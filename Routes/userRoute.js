@@ -2,6 +2,7 @@ const express = require('express');
 const userController = require('../Controllers/userController');
 const authController = require('../Controllers/authController');
 const scheduleController = require('../Controllers/scheduleController');
+const patientController = require('../Controllers/patientController');
 
 const router = express.Router();
 
@@ -21,6 +22,8 @@ router
 router.patch('/update/:id', authController.protect, userController.update);
 
 router.get('/:id/findDoctor', authController.protect, userController.findDoctor);
+
+router.post('/:id/patient/:doctor_id', authController.protect, patientController.addToPatient);
 
 router.get('/:id/schedule', authController.protect, scheduleController.getSchedule);
 

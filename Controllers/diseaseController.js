@@ -10,7 +10,14 @@ exports.createDisease = catchAsync(async (req, res, next) => {
     return next(new AppError('No user found with that ID', 404));
   }
 
-  const disease = await Disease.create(req.body);
+  const disease = await Disease.create(
+    {
+      disease_name: req.body.disease_name,
+      confidence: req.body.confidence,
+      disease_img: req.body.disease_img,
+      users: req.params.id,
+    },
+  );
   const { _id } = disease;
   await User.updateOne(
     { _id: req.params.id },
