@@ -13,7 +13,7 @@ exports.addToPatient = catchAsync(async (req, res, next) => {
 
   await Disease.updateOne(
     { _id: req.body.disease_id },
-    { $push: { doctor: req.params.doctor_id } },
+    { $set: { doctor: req.params.doctor_id } },
   );
 
   if (!patient) {
@@ -64,6 +64,12 @@ exports.getAllpatient = catchAsync(async (req, res, next) => {
 exports.getPatientDetail = catchAsync(async (req, res, next) => {
   const detailUser = await User.findById(req.params.patient_id);
   const { _id, details, disease } = detailUser;
+  const detailDisease = await Disease.find(
+    {
+      $in: disease,
+      doctor: req.params.doctor_id,
+    },
+  );
 
   if (!detailUser) {
     return next(
@@ -77,7 +83,7 @@ exports.getPatientDetail = catchAsync(async (req, res, next) => {
     data: {
       _id,
       details,
-      disease,
+      detailDisease,
     },
   });
 });
