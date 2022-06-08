@@ -10,6 +10,8 @@ router.get('/', authDoctorController.protect, authDoctorController.allow('admin'
 
 router.get('/:doctor_id', authDoctorController.protect, doctorController.getDoctor);
 
+router.post('/:doctor_id/end/:user_id', authDoctorController.protect, doctorController.endConsult);
+
 router.get('/:doctor_id/schedule', authDoctorController.protect, scheduleController.getAllSchedule);
 
 router.post('/:doctor_id/schedule/:user_id', authDoctorController.protect, scheduleController.createSchedule);

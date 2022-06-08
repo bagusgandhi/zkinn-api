@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
   },
   disease: [{ type: mongoose.Schema.Types.ObjectId, ref: 'disease' }],
   schedule: [{ type: mongoose.Schema.Types.ObjectId, ref: 'schedule' }],
-  status: {
+  handled_by: {
     doctor_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'doctor',

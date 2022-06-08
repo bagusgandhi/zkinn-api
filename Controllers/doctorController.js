@@ -1,6 +1,9 @@
 const Doctor = require('../Models/doctorModel');
 const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
+const Schedule = require('../Models/scheduleModel');
+const User = require('../Models/userModel');
+const Disease = require('../Models/diseaseModel');
 
 exports.getAllDoctors = catchAsync(async (req, res, next) => {
   const doctor = await Doctor.find();
@@ -53,5 +56,55 @@ exports.updateDoctor = catchAsync(async (req, res, next) => {
     doctor: {
       doctor,
     },
+  });
+});
+
+exports.endConsult = catchAsync(async (req, res, next) => {
+  const removePatient = await Doctor.updateOne(
+    {
+      _id: req.params.doctor_id,
+    },
+    {
+      $pull: {
+        patients: req.body.patient_id,
+      },
+    },
+  );
+
+  const removeSchedule = await Schedule.findOneAndRemove(
+    {
+      users: req.params.user_id,
+      doctors: req.params.doctor_id,
+    },
+  );
+
+  const removeStatusUser = await User.updateOne(
+    { _id: req.params.user_id },
+    {
+      $unset: {
+        'handled_by.doctor_id': '',
+        'handled_by.doctor_name': '',
+      },
+    },
+
+  );
+
+  const removeDiseaseDoctor = await Disease.findOneAndRemove(
+    {
+      users: req.params.user_id,
+      doctors: req.params.doctor_id,
+    },
+  );
+
+  if (!removePatient && !removeSchedule && !removeStatusUser && !removeDiseaseDoctor) {
+    return next(
+      new AppError('no doctor_id, user_id, or disease_id  found with the IDs', 404),
+    );
+  }
+
+  res.status(200).json({
+    status: 'success',
+    requaestAt: Date.now(),
+    message: 'Ended Consultation Succesfull!',
   });
 });

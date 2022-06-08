@@ -8,15 +8,33 @@ const Disease = require('../Models/diseaseModel');
 exports.addToPatient = catchAsync(async (req, res, next) => {
   const patient = await Doctor.updateOne(
     { _id: req.params.doctor_id },
-    { $push: { patients: req.params.id } },
+    {
+      $push: { patients: req.params.id },
+    },
   );
 
   await Disease.updateOne(
     { _id: req.body.disease_id },
-    { $set: { doctor: req.params.doctor_id } },
+    {
+      $set: {
+        doctor: req.params.doctor_id,
+      },
+    },
   );
 
-  if (!patient) {
+  const user = await User.updateOne(
+    { _id: req.params.id },
+    {
+      $set: {
+        handled_by: {
+          doctor_id: req.params.doctor_id,
+          doctor_name: req.body.doctor_name,
+        },
+      },
+    },
+  );
+
+  if (!patient && !user) {
     return next(
       new AppError('No doctor found with that ID', 404),
     );
