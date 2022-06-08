@@ -51,6 +51,13 @@ const userSchema = new mongoose.Schema({
   },
   disease: [{ type: mongoose.Schema.Types.ObjectId, ref: 'disease' }],
   schedule: [{ type: mongoose.Schema.Types.ObjectId, ref: 'schedule' }],
+  status: {
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'doctor',
+    },
+    doctor_name: String,
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
