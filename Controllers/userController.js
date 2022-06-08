@@ -147,7 +147,7 @@ exports.profile = catchAsync(async (req, res, next) => {
   // query user profile
   const user = await User.findById(decoded.id);
   const {
-    _id, username, email, details, schedule,
+    _id, username, email, details, schedule, handled_by,
   } = user;
 
   // query schedule
@@ -172,6 +172,7 @@ exports.profile = catchAsync(async (req, res, next) => {
       email,
       details,
       schedule_data,
+      handled_by,
     },
   });
 });
