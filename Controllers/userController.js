@@ -178,6 +178,76 @@ exports.findDoctor = catchAsync(async (req, res) => {
   });
 });
 
+exports.detailDoctor = catchAsync(async (req, res, next) => {
+  const getHandled = await User.findById(req.params.id);
+
+  const getDetailDoctor = await Doctor.findById(getHandled.handled_by.doctor_id);
+
+  if (getDetailDoctor === null) {
+    return next(
+      new AppError('No Doctor found!', 404),
+    );
+  }
+
+  res.status(200).json({
+    status: 'success',
+    requaestAt: Date.now(),
+    doctor: {
+      _id: getDetailDoctor._id,
+      details: getDetailDoctor.details,
+    },
+  });
+});
+
+exports.cancelConsult = catchAsync(async (req, res, next) => {
+  const removeStatusUser = await User.updateOne(
+    { _id: req.params.id },
+    {
+      $unset: {
+        'handled_by.doctor_id': '',
+        'handled_by.doctor_name': '',
+      },
+    },
+  );
+
+  const removeSchedule = await Schedule.findOneAndRemove(
+    {
+      users: req.params.id,
+      doctors: req.params.doctor_id,
+    },
+  );
+
+  const removeDiseaseDoctor = await Disease.findOneAndRemove(
+    {
+      users: req.params.id,
+      doctors: req.params.doctor_id,
+    },
+  );
+
+  const removePatient = await Doctor.updateOne(
+    {
+      _id: req.params.doctor_id,
+    },
+    {
+      $pull: {
+        patients: req.body.patient_id,
+      },
+    },
+  );
+
+  if (!removePatient && !removeSchedule && !removeStatusUser && !removeDiseaseDoctor) {
+    return next(
+      new AppError('no doctor_id, user_id, or disease_id  found with the IDs', 404),
+    );
+  }
+
+  res.status(200).json({
+    status: 'success',
+    requaestAt: Date.now(),
+    message: 'cancel Consultation Succesfull!',
+  });
+});
+
 exports.profile = catchAsync(async (req, res, next) => {
   const token = await req.headers.authorization.split(' ')[1];
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
