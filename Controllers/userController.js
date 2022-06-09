@@ -5,6 +5,7 @@ const catchAsync = require('../Helpers/catchAsync');
 const AppError = require('../Helpers/appError');
 const Doctor = require('../Models/doctorModel');
 const Schedule = require('../Models/scheduleModel');
+const Disease = require('../Models/diseaseModel');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -133,10 +134,47 @@ exports.findDoctor = catchAsync(async (req, res) => {
     details: e.details,
   }));
 
-  res.status(200).json({
+  const { doctor_id } = data[0];
+  const doctor_name = data[0].details.full_name;
+
+  const addPatient = await Doctor.updateOne(
+    { _id: doctor_id },
+    {
+      $push: { patients: req.params.id },
+    },
+  );
+
+  const disease = await Disease.updateOne(
+    { _id: req.body.disease_id },
+    {
+      $set: {
+        doctor: doctor_id,
+      },
+    },
+  );
+
+  const user = await User.updateOne(
+    { _id: req.params.id },
+    {
+      $set: {
+        handled_by: {
+          doctor_id,
+          doctor_name,
+        },
+      },
+    },
+  );
+
+  if (!doctor && !user && !disease && !addPatient) {
+    return next(
+      new AppError('No doctor or user disease found', 404),
+    );
+  }
+
+  res.status(201).json({
     status: 'success',
     requaestAt: Date.now(),
-    data,
+    data: data[0],
   });
 });
 
