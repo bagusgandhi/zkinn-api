@@ -21,7 +21,7 @@ router
 
 router.patch('/update/:id', authController.protect, userController.update);
 
-router.get('/:id/findDoctor', authController.protect, userController.findDoctor);
+router.post('/:id/findDoctor', authController.protect, userController.findDoctor);
 
 router.post('/:id/patient/:doctor_id', authController.protect, patientController.addToPatient);
 
