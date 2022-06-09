@@ -25,6 +25,10 @@ router.post('/:id/findDoctor', authController.protect, userController.findDoctor
 
 router.post('/:id/patient/:doctor_id', authController.protect, patientController.addToPatient);
 
+router.get('/:id/doctor', authController.protect, userController.detailDoctor);
+
+router.post('/:id/cancel/:doctor_id', authController.protect, userController.cancelConsult);
+
 router.get('/:id/schedule', authController.protect, scheduleController.getSchedule);
 
 router.get('/:id/schedule/:schedule_id', authController.protect, scheduleController.getScheduleById);
